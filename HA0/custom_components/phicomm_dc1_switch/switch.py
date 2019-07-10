@@ -11,7 +11,7 @@ import json
 import re
 import select
 import voluptuous as vol
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
+from socket import socket, gethostbyname, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
 from homeassistant.components.switch import (SwitchDevice, PLATFORM_SCHEMA)
 from homeassistant.const import (CONF_NAME, CONF_MAC)
@@ -24,7 +24,8 @@ _INTERVAL = 1
 SCAN_INTERVAL = datetime.timedelta(seconds=_INTERVAL)
 DEFAULT_NAME = 'dc1'
 CONF_PORTS = 'ports'
-CONF_IP = 'ip'
+# CONF_IP = 'ip'
+CONF_HOST = 'host'
 
 ATTR_STATE = "switchstate"
 ATTR_NAME = "switchname"
@@ -37,7 +38,8 @@ CONNECTION_LISTS = []
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Required(CONF_IP): cv.string,
+#     vol.Required(CONF_IP): cv.string,
+    vol.Required(CONF_HOST): cv.string,
    vol.Required(CONF_PORTS): dict
 })
 
@@ -47,7 +49,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     name = config.get(CONF_NAME)
     ports = config.get(CONF_PORTS)
-    ip = config.get(CONF_IP)
+#     ip = config.get(CONF_IP)
+    host = config.get(CONF_HOST)
+    ip = gethostbyname(host)
+    
     dc1sock = socket(AF_INET, SOCK_STREAM)
     dc1sock.settimeout(200000000)
     dc1sock.setsockopt(SOL_SOCKET,SO_REUSEADDR,1)
